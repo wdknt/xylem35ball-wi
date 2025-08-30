@@ -1,0 +1,10 @@
+{
+    "include": [
+        {
+            "keyboard": "xylem35ball_wi",
+            "keymap": "vial",
+            "target": "uf2",
+            "name": "xylem35ball_wi_vial"
+        }
+    ]
+}
