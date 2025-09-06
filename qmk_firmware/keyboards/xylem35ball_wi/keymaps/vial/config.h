@@ -5,3 +5,8 @@
 #define PICO_FLASH_SIZE_BYTES (1 * 1024 * 1024)
 #define POINTING_DEVICE_INVERT_X
 #define POINTING_DEVICE_INVERT_Y
+
+// 既存の #define の下に追加
+#define PMW3360_CPI 1200        // トラックボールの解像度
+#define SCROLL_SCALE_NUM 3
+#define SCROLL_SCALE_DEN 8
