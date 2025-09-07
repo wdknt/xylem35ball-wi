@@ -30,27 +30,34 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 // トラックボール処理
-bool pointing_device_task_user(report_mouse_t *report) {
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     if (!scroll_mode) {
-        return true;  // 通常のマウス移動
+        return mouse_report; // そのまま返す
     }
 
-    int16_t dx = report->x;
-    int16_t dy = report->y;
+    int16_t dx = mouse_report.x;
+    int16_t dy = mouse_report.y;
 
-    // マウス移動を止める
-    report->x = 0;
-    report->y = 0;
+    mouse_report.x = 0;
+    mouse_report.y = 0;
 
-    // スクロール変換
-    int16_t v = scale_scroll(-dy); // 垂直
-    int16_t h = scale_scroll( dx); // 水平
+    int16_t v = scale_scroll(-dy);
+    int16_t h = scale_scroll( dx);
 
-    report->h = (int8_t)CLAMP(report->h + h, -127, 127);
-    report->v = (int8_t)CLAMP(report->v + v, -127, 127);
+    int16_t nh = mouse_report.h + h;
+    int16_t nv = mouse_report.v + v;
 
-    return true;
+    if (nh > 127)  nh = 127;
+    if (nh < -127) nh = -127;
+    if (nv > 127)  nv = 127;
+    if (nv < -127) nv = -127;
+
+    mouse_report.h = (int8_t)nh;
+    mouse_report.v = (int8_t)nv;
+
+    return mouse_report;  // 最後に返す
 }
+
 
 // ===== キーマップ例 =====
 // LAYOUT_xxx はあなたの keyboard.c に定義されたマクロに合わせてください。
