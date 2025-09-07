@@ -63,7 +63,11 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 // LAYOUT_xxx はあなたの keyboard.c に定義されたマクロに合わせてください。
 // とりあえず 1 キーだけ定義して、SCRL_MOD を割り当てた例です。
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [0] = LAYOUT(
-        SCRL_MOD  // ← ボタンを押している間だけスクロールモード
+    [0] = LAYOUT_ortho_5x7(
+        SCRL_MOD, KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+        KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+        KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+        KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,
+        KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO,    KC_NO
     )
 };
