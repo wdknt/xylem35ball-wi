@@ -7,10 +7,10 @@ static bool scroll_mode = false;
 // 例: {1,4}=0.25x, {1,2}=0.5x, {1,1}=1x, {2,1}=2x, {4,1}=4x
 static const int8_t scroll_presets[][2] = {
     {1, 4},
+    {1, 3},
     {1, 2},
     {1, 1},
     {2, 1},
-    {4, 1},
 };
 #define NUM_SCROLL_PRESETS (sizeof(scroll_presets) / sizeof(scroll_presets[0]))
 static uint8_t current_preset = 2;  // デフォルト: 1x
@@ -41,25 +41,6 @@ enum {
     _L4,
 };
 
-// --- “滑らかスクロール”設定（好みに応じて調整可） --------------------------
-// 固定小数点で微小量を積み上げ、EMAでガタつきを抑え、入力ゼロ時は慣性で減衰
-#ifndef SCROLL_FP_SHIFT
-#    define SCROLL_FP_SHIFT 8     // 固定小数点：小数ビット数（24.8）
-#endif
-#ifndef SCROLL_ALPHA_SHIFT
-#    define SCROLL_ALPHA_SHIFT 2  // EMA係数 1/(2^n) → 2: 1/4（数値↑でより滑らか＝反応は緩やか）
-#endif
-#ifndef SCROLL_INERTIA_SHIFT
-#    define SCROLL_INERTIA_SHIFT 3 // 入力0時の減衰 1/(2^n) → 3: 1/8（数値↓でキビキビ止まる）
-#endif
-#ifndef SCROLL_MAX_STEP
-#    define SCROLL_MAX_STEP 6     // 1レポートで送る最大スクロール量（跳ね防止）
-#endif
-
-// 平滑化用の内部状態
-static int32_t filt_x = 0, filt_y = 0;  // EMA内部値（生値ベース）
-static int32_t acc_h  = 0, acc_v  = 0;  // 固定小数点の累積
-
 // --- キー入力処理 -----------------------------------------------------------
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
@@ -78,8 +59,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 char buffer[32];
                 int num = scroll_presets[current_preset][0];
                 int den = scroll_presets[current_preset][1];
+
                 // 例: "Scroll Speed: 1/2"
                 snprintf(buffer, sizeof(buffer), "Scroll Speed: %d/%d\n", num, den);
+
                 // キーボード入力として出力（メモ帳などで確認可能）
                 send_string(buffer);
                 return false;
@@ -95,65 +78,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 // --- ポインティングデバイス処理 -------------------------------------------
-// EMA＋慣性＋小数累積で“ぬるっ”と動かす
-report_mouse_t pointing_device_task_user(report_mouse_t m) {
+report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     if (!scroll_mode) {
-        return m;  // 通常のマウス移動
+        return mouse_report;  // 通常のマウス移動
     }
 
-    // 入力取得＆カーソル移動は止める
-    int32_t dx = m.x;
-    int32_t dy = m.y;
-    m.x = 0;
-    m.y = 0;
+    // 現在の移動量をスクロールに変換（即時反映）
+    int16_t dx = mouse_report.x;
+    int16_t dy = mouse_report.y;
 
-    // ===== EMA（平滑化）=====
-    // filt += (input - filt) * alpha ; alpha = 1/(2^SCROLL_ALPHA_SHIFT)
-    filt_x += ((dx - filt_x) >> SCROLL_ALPHA_SHIFT);
-    filt_y += ((dy - filt_y) >> SCROLL_ALPHA_SHIFT);
+    mouse_report.x = 0;
+    mouse_report.y = 0;
+    mouse_report.h = scale_scroll(dx);   // 水平スクロール
+    mouse_report.v = scale_scroll(-dy);  // 垂直スクロール（符号は逆向き）
 
-    // 入力が止まったら慣性でゆっくり0へ
-    if (dx == 0 && dy == 0) {
-        filt_x -= (filt_x >> SCROLL_INERTIA_SHIFT);
-        filt_y -= (filt_y >> SCROLL_INERTIA_SHIFT);
-    }
-
-    // 平滑化後の値を整数化
-    int16_t sdx = (int16_t)filt_x;
-    int16_t sdy = (int16_t)filt_y;
-
-    // プリセット倍率を適用（線形）
-    int16_t h_raw = scale_scroll(sdx);
-    int16_t v_raw = scale_scroll(-sdy);
-
-    // ===== 固定小数点で微小量を蓄積 =====
-    acc_h += ((int32_t)h_raw << SCROLL_FP_SHIFT);
-    acc_v += ((int32_t)v_raw << SCROLL_FP_SHIFT);
-
-    int16_t out_h = (int16_t)(acc_h >> SCROLL_FP_SHIFT);
-    int16_t out_v = (int16_t)(acc_v >> SCROLL_FP_SHIFT);
-
-    acc_h -= ((int32_t)out_h << SCROLL_FP_SHIFT);
-    acc_v -= ((int32_t)out_v << SCROLL_FP_SHIFT);
-
-    // 1レポートの最大量を制限（急な跳ね抑制）
-    if (out_h >  SCROLL_MAX_STEP) out_h =  SCROLL_MAX_STEP;
-    if (out_h < -SCROLL_MAX_STEP) out_h = -SCROLL_MAX_STEP;
-    if (out_v >  SCROLL_MAX_STEP) out_v =  SCROLL_MAX_STEP;
-    if (out_v < -SCROLL_MAX_STEP) out_v = -SCROLL_MAX_STEP;
-
-    // HID範囲クランプ
-    if (out_h > 127)  out_h = 127;
-    if (out_h < -127) out_h = -127;
-    if (out_v > 127)  out_v = 127;
-    if (out_v < -127) out_v = -127;
-
-    m.h = (int8_t)out_h;   // 水平スクロール
-    m.v = (int8_t)out_v;   // 垂直スクロール
-    return m;
+    return mouse_report;
 }
 
 // --- キーマップ -------------------------------------------------------------
+// SCRL_MOD, SCRL_PREV, SCRL_NEXT, SCRL_PRINT, KC_NO
 // info.json の 10 + 10 + 10 + 5 物理配列に対応
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
