@@ -44,6 +44,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             case SCRL_PREV:              // 前の速度へ切り替え
                 current_preset = (current_preset + NUM_SCROLL_PRESETS - 1) % NUM_SCROLL_PRESETS;
                 return false;
+            case SCRL_PRINT: {
+                // 現在のプリセットを文字列にして出力
+                char buffer[32];
+                int num = scroll_presets[current_preset][0];
+                int den = scroll_presets[current_preset][1];
+
+                // 例: "Scroll Speed: 1/2"
+                snprintf(buffer, sizeof(buffer), "Scroll Speed: %d/%d\n", num, den);
+
+                // キーボード入力として出力（メモ帳などで確認可能）
+                send_string(buffer);
+                return false;
+            }
         }
     } else {
         if (keycode == SCRL_MOD) {
@@ -78,6 +91,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         /* 1行目（10キー）*/ KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,
         /* 2行目（10キー）*/ KC_A,   KC_S,   KC_D,   KC_F,   KC_G,   KC_H,   KC_J,   KC_K,   KC_L,   KC_ENT,
         /* 3行目（10キー）*/ KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   KC_NO,  KC_NO,  KC_NO,
-        /* 4行目（5キー）  */ SCRL_MOD, SCRL_PREV, SCRL_NEXT, KC_NO, KC_NO
+        /* 4行目（5キー）  */ SCRL_MOD, SCRL_PREV, SCRL_NEXT, SCRL_PRINT, KC_NO
     )
 };
