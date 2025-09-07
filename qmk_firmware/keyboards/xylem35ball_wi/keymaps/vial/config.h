@@ -10,3 +10,7 @@
 #define PMW3360_CPI 1200        // トラックボールの解像度
 #define SCROLL_SCALE_NUM 3
 #define SCROLL_SCALE_DEN 8
+
+
+// レイヤー数を5つとする。
+#define DYNAMIC_KEYMAP_LAYER_COUNT 5
