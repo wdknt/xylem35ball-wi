@@ -108,14 +108,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_A,    KC_S,    KC_D,          LT(2, KC_F),  KC_G,   KC_H,   KC_J,   KC_K,     TD(4),           TD(0),
         // 3段目(10)
         LGUI_T(KC_Z), LSFT_T(KC_X), KC_C, KC_V,        KC_B,   KC_N,   KC_M,   KC_COMM,  LSFT_T(KC_DOT),  LGUI_T(KC_MINS),
-        // 4段目(5)  ※行3の col2〜6 を詰めて5個
-        LT(1, KC_NO), LALT_T(KC_MHEN), LCTL_T(KC_GRV), LT(3, KC_SPC), LT(2, KC_BSPC)
+        // 4段目(5)
+        LT(1, KC_NO), LALT_T(KC_INT5), LCTL_T(KC_GRV), LT(3, KC_SPC), LT(2, KC_BSPC)
     ),
 
     // ===== Layer 1 =====
     [_L1] = LAYOUT(
         // 1段目(10)
-        TD(1),        KC_F2,      KC_F3,      KC_F4,      KC_F5,      LCTL(KC_Z), LCTL(KC_X), LCTL(KC_C), LCTL(KC_V), M0,
+        TD(1),        KC_F2,      KC_F3,      KC_F4,      KC_F5,      LCTL(KC_Z), LCTL(KC_X), LCTL(KC_C), LCTL(KC_V), QK_MACRO_0,
         // 2段目(10)
         KC_F6,        KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_ESC,     KC_BTN1,    KC_BTN2,    0x7e40,     TD(3),
         // 3段目(10)
@@ -127,7 +127,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // ===== Layer 2 =====
     [_L2] = LAYOUT(
         // 1段目(10)
-        LSFT(KC_EQL), KC_LBRC,    LSFT(KC_3), LSFT(KC_4), LSFT(KC_5), KC_EQL,     LSFT(KC_6), LSFT(KC_LBRC), KC_JYEN,    LSFT(KC_JYEN),
+        LSFT(KC_EQL), KC_LBRC,    LSFT(KC_3), LSFT(KC_4), LSFT(KC_5), KC_EQL,     LSFT(KC_6), LSFT(KC_LBRC), KC_INT3,    LSFT(KC_INT3),
         // 2段目(10)
         LSFT(KC_1),   LSFT(KC_RBRC), LSFT(KC_NUHS), LSFT(KC_8), LSFT(KC_9), KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, TD(0),
         // 3段目(10)
@@ -143,7 +143,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         // 2段目(10)
         LSFT(KC_7), KC_QUOT, LSFT(KC_MINS), KC_MINS, KC_SLSH, KC_BSPC, KC_4, KC_5, KC_6, TD(0),
         // 3段目(10)
-        LSFT(KC_2), KC_SCLN, LSFT(KC_RO), LSFT(KC_SCLN), LSFT(KC_QUOT), KC_0, KC_1, KC_2, KC_3, KC_DOT,
+        LSFT(KC_2), KC_SCLN, LSFT(KC_INT1), LSFT(KC_SCLN), LSFT(KC_QUOT), KC_0, KC_1, KC_2, KC_3, KC_DOT,
         // 4段目(5)
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_DEL
     ),
