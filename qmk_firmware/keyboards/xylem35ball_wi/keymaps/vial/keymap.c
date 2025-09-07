@@ -37,15 +37,16 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 //    int16_t nh = mouse_report.h + h;
 //    int16_t nv = mouse_report.v + v;
 
+//    nh = nh > 127 ? 127 : (nh < -127 ? -127 : nh);
+//    nv = nv > 127 ? 127 : (nv < -127 ? -127 : nv);
+
+//    mouse_report.h = (int8_t)nh;
+//    mouse_report.v = (int8_t)nv;
+
     // スクロール値を即時反映（新コード）
     mouse_report.h = scale_scroll(dx);
     mouse_report.v = scale_scroll(-dy);
 
-    nh = nh > 127 ? 127 : (nh < -127 ? -127 : nh);
-    nv = nv > 127 ? 127 : (nv < -127 ? -127 : nv);
-
-    mouse_report.h = (int8_t)nh;
-    mouse_report.v = (int8_t)nv;
     return mouse_report;
 }
 
