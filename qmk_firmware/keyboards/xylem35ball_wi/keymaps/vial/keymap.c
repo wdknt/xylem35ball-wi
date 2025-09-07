@@ -32,6 +32,15 @@ enum custom_keycodes {
     SCRL_PRINT              // 現在の速度をテキストとして出力
 };
 
+// レイヤー名（0〜4）
+enum {
+    _L0 = 0,
+    _L1,
+    _L2,
+    _L3,
+    _L4,
+};
+
 // --- キー入力処理 -----------------------------------------------------------
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
@@ -87,11 +96,55 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 }
 
 // --- キーマップ -------------------------------------------------------------
+// SCRL_MOD, SCRL_PREV, SCRL_NEXT, SCRL_PRINT, KC_NO
+// info.json の 10 + 10 + 10 + 5 物理配列に対応
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [0] = LAYOUT(
-        /* 1行目（10キー）*/ KC_Q,   KC_W,   KC_E,   KC_R,   KC_T,   KC_Y,   KC_U,   KC_I,   KC_O,   KC_P,
-        /* 2行目（10キー）*/ KC_A,   KC_S,   KC_D,   KC_F,   KC_G,   KC_H,   KC_J,   KC_K,   KC_L,   KC_ENT,
-        /* 3行目（10キー）*/ KC_Z,   KC_X,   KC_C,   KC_V,   KC_B,   KC_N,   KC_M,   KC_NO,  KC_NO,  KC_NO,
-        /* 4行目（5キー）  */ SCRL_MOD, SCRL_PREV, SCRL_NEXT, SCRL_PRINT, KC_NO
-    )
+
+    // ===== Layer 0 =====
+    [_L0] = LAYOUT(
+        // 1段目(10)
+        TD(1),   KC_W,    KC_E,          KC_R,         KC_T,   KC_Y,   KC_U,   KC_I,     KC_O,            KC_P,
+        // 2段目(10)
+        KC_A,    KC_S,    KC_D,          LT(2, KC_F),  KC_G,   KC_H,   KC_J,   KC_K,     TD(4),           TD(0),
+        // 3段目(10)
+        LGUI_T(KC_Z), LSFT_T(KC_X), KC_C, KC_V,        KC_B,   KC_N,   KC_M,   KC_COMM,  LSFT_T(KC_DOT),  LGUI_T(KC_MINS),
+        // 4段目(5)  ※行3の col2〜6 を詰めて5個
+        LT(1, KC_NO), LALT_T(KC_MHEN), LCTL_T(KC_GRV), LT(3, KC_SPC), LT(2, KC_BSPC)
+    ),
+
+    // ===== Layer 1 =====
+    [_L1] = LAYOUT(
+        // 1段目(10)
+        TD(1),        KC_F2,      KC_F3,      KC_F4,      KC_F5,      LCTL(KC_Z), LCTL(KC_X), LCTL(KC_C), LCTL(KC_V), M0,
+        // 2段目(10)
+        KC_F6,        KC_F7,      KC_F8,      KC_F9,      KC_F10,     KC_ESC,     KC_BTN1,    KC_BTN2,    0x7e40,     TD(3),
+        // 3段目(10)
+        KC_LGUI,      KC_LSFT,    KC_C,       KC_V,       KC_B,       TD(2),      KC_NO,      KC_NO,      KC_LSFT,    KC_DEL,
+        // 4段目(5)
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+    ),
+
+    // ===== Layer 2 =====
+    [_L2] = LAYOUT(
+        // 1段目(10)
+        LSFT(KC_EQL), KC_LBRC,    LSFT(KC_3), LSFT(KC_4), LSFT(KC_5), KC_EQL,     LSFT(KC_6), LSFT(KC_LBRC), KC_JYEN,    LSFT(KC_JYEN),
+        // 2段目(10)
+        LSFT(KC_1),   LSFT(KC_RBRC), LSFT(KC_NUHS), LSFT(KC_8), LSFT(KC_9), KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, TD(0),
+        // 3段目(10)
+        LSFT(KC_SLSH), LSFT_T(KC_RBRC), KC_NUHS, KC_NO, KC_NO, KC_HOME, KC_PGDN, KC_PGUP, KC_END, KC_DEL,
+        // 4段目(5)
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
+    ),
+
+    // ===== Layer 3 =====
+    [_L3] = LAYOUT(
+        // 1段目(10)
+        KC_1,   KC_2,   KC_3,        KC_4,        KC_5,   KC_6,   KC_7,   KC_8,   KC_9,   KC_0,
+        // 2段目(10)
+        LSFT(KC_7), KC_QUOT, LSFT(KC_MINS), KC_MINS, KC_SLSH, KC_BSPC, KC_4, KC_5, KC_6, TD(0),
+        // 3段目(10)
+        LSFT(KC_2), KC_SCLN, LSFT(KC_RO), LSFT(KC_SCLN), LSFT(KC_QUOT), KC_0, KC_1, KC_2, KC_3, KC_DOT,
+        // 4段目(5)
+        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_DEL
+    ),
 };
